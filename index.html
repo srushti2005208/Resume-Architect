@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Maker</title>
+    <link rel="stylesheet" href="style.css"> <!-- Add this line -->
+    <style>
+        /* ...existing code... */
+    </style>
+</head>
+<body>
+    <div class="c">
+        <h1>Resume Architect</h1>
+        <div id="template-selected" style="text-align:center; color:#3498db; font-weight:bold; margin-bottom:20px;"></div>
+        <div class="f">
+            <h2>Your Info</h2>
+            <div class="g"><label for="name">Full Name</label><input type="text" id="name" placeholder="Name"></div>
+            <div class="g"><label for="birthdate">Birth date</label><input type="text" id="birthdate" placeholder=""></div>
+            <div class="g"><label for="jobtitle">Job Title</label><input type="text" id="jobtitle" placeholder="eg:web developer"></div>
+            <div class="g"><label for="email">Email</label><input type="email" id="email" placeholder="eg:your@email.com"></div>
+            <div class="g"><label for="phone">Phone</label><input type="tel" id="phone" placeholder="eg:8888-9999"></div>
+            <div class="g"><label for="summary">Summary</label><textarea id="summary" placeholder="Brief summary..."></textarea></div>
+            <div class="g"><label for="experience">Experience</label><textarea id="experience" placeholder="experience or achievements"></textarea></div>
+            <div class="g"><label for="education">Education and Qualification</label><textarea id="education" placeholder=""></textarea></div>
+            <div class="g"><label for="skills">Skills</label><input type="text" id="skills" placeholder=""></div>
+            <div class="g"><label for="languages">Languages</label><input type="text" id="languages" placeholder="eg:English,Marathi,etc"></div>
+            <div class="g"><label for="hobbies">Hobbies</label><input type="text" id="hobbies" placeholder=""></div>
+            <button class="b bs" onclick="downloadPDF()">Download PDF</button>
+        </div>
+        <div class="p">
+            <h2>Preview</h2>
+            <div id="resume-preview" class="r"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', updatePreview));
+
+        window.onload = function() {
+            const template = getQueryParam('template');
+            document.getElementById('template-selected').textContent = template ? `Selected Template: ${template}` : '';
+            document.getElementById('name').value = '';
+            document.getElementById('birthdate').value = '';
+            document.getElementById('jobtitle').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('summary').value = '';
+            document.getElementById('experience').value = '';
+            document.getElementById('education').value = '';
+            document.getElementById('skills').value = '';
+            document.getElementById('languages').value = '';
+            document.getElementById('hobbies').value = '';
+            updatePreview();
+        };
+
+        function updatePreview() {
+            const name = document.getElementById('name').value || 'Your Name';
+            const birthdate = document.getElementById('birthdate').value;
+            const jobtitle = document.getElementById('jobtitle').value || 'Your Job Title';
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const summary = document.getElementById('summary').value;
+            const experience = document.getElementById('experience').value;
+            const education = document.getElementById('education').value;
+            const skills = document.getElementById('skills').value;
+            const languages = document.getElementById('languages').value;
+            const hobbies = document.getElementById('hobbies').value;
+
+            const skillsArr = skills ? skills.split(',').map(s => s.trim()).filter(s => s) : [];
+            const skillsHtml = skillsArr.map(s => `<span class="st">${s}</span>`).join('');
+            const langArr = languages ? languages.split(',').map(s => s.trim()).filter(s => s) : [];
+            const langHtml = langArr.map(s => `<span class="st">${s}</span>`).join('');
+            const hobArr = hobbies ? hobbies.split(',').map(s => s.trim()).filter(s => s) : [];
+            const hobHtml = hobArr.map(s => `<span class="st">${s}</span>`).join('');
+            const expItems = experience ? experience.split('\n').filter(l => l.trim()) : [];
+            const eduItems = education ? education.split('\n').filter(l => l.trim()) : [];
+            let ci = [];
+            if (email) ci.push(email);
+            if (phone) ci.push(phone);
+            if (birthdate) ci.push(birthdate);
+
+            document.getElementById('resume-preview').innerHTML = `
+                <div class="rh"><h3>${name}</h3><p>${jobtitle}</p><div class="ci">${ci.join(' • ')}</div></div>
+                ${summary ? `<div class="rs"><h4>Summary</h4><p>${summary}</p></div>` : ''}
+                ${experience ? `<div class="rs"><h4>Experience</h4>${expItems.map(i => `<div class="ei">${i}</div>`).join('')}</div>` : ''}
+                ${education ? `<div class="rs"><h4>Education</h4>${eduItems.map(i => `<div class="ed">${i}</div>`).join('')}</div>` : ''}
+                ${skills ? `<div class="rs"><h4>Skills</h4><div class="s">${skillsHtml}</div></div>` : ''}
+                ${languages ? `<div class="rs"><h4>Languages</h4><div class="s">${langHtml}</div></div>` : ''}
+                ${hobbies ? `<div class="rs"><h4>Hobbies</h4><div class="s">${hobHtml}</div></div>` : ''}
+            `;
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const name = document.getElementById('name').value || 'Your Name';
+            const birthdate = document.getElementById('birthdate').value;
+            const jobtitle = document.getElementById('jobtitle').value || 'Your Job Title';
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const summary = document.getElementById('summary').value;
+            const experience = document.getElementById('experience').value;
+            const education = document.getElementById('education').value;
+            const skills = document.getElementById('skills').value;
+            const languages = document.getElementById('languages').value;
+            const hobbies = document.getElementById('hobbies').value;
+
+            let y = 20;
+            doc.setFontSize(20).setFont('helvetica', 'bold').text(name, 105, y, { align: 'center' });
+            y += 10; doc.setFontSize(14).setFont('helvetica', 'normal').text(jobtitle, 105, y, { align: 'center' }); y += 8;
+            let c = [];
+            if (email) c.push(email);
+            if (phone) c.push(phone);
+            if (birthdate) c.push(birthdate);
+            if (c.length) { doc.setFontSize(10).text(c.join(' • '), 105, y, { align: 'center' }); y += 15; }
+            doc.setDrawColor(52, 152, 219).setLineWidth(1).line(20, y, 190, y); y += 15;
+            if (summary) { doc.setFontSize(12).setFont('helvetica', 'bold').text('SUMMARY', 20, y); y += 8; doc.setFontSize(10).text(doc.splitTextToSize(summary, 170), 20, y); y += 10; }
+            if (experience) { doc.setFontSize(12).setFont('helvetica', 'bold').text('EXPERIENCE', 20, y); y += 8; experience.split('\n').forEach(line => { doc.setFont('helvetica', line.includes(' - ') && line.includes('(') ? 'bold' : 'normal').text(line, line.includes(' - ') && line.includes('(') ? 20 : 25, y); y += 5; }); y += 5; }
+            if (education) { doc.setFontSize(12).setFont('helvetica', 'bold').text('EDUCATION', 20, y); y += 8; education.split('\n').forEach(line => { doc.text(line, 20, y); y += 5; }); y += 5; }
+            if (skills) { doc.setFontSize(12).setFont('helvetica', 'bold').text('SKILLS', 20, y); y += 8; doc.setFontSize(10).text(skills.split(',').map(s => s.trim()).join(', '), 20, y); y += 8; }
+            if (languages) { doc.setFontSize(12).setFont('helvetica', 'bold').text('LANGUAGES', 20, y); y += 8; doc.setFontSize(10).text(languages.split(',').map(s => s.trim()).join(', '), 20, y); y += 8; }
+            if (hobbies) { doc.setFontSize(12).setFont('helvetica', 'bold').text('HOBBIES', 20, y); y += 8; doc.setFontSize(10).text(hobbies.split(',').map(s => s.trim()).join(', '), 20, y); y += 8; }
+            doc.save(`${name.replace(/\s+/g, '_')}_Resume.pdf`);
+             }
+    </script>
+</body>
+</html>
